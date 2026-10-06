@@ -4,6 +4,6 @@ export function criarProdutoRoutes({ produtoController }){
     const router = express.Router();
     router.get("/", produtoController.listar);
     router.get("/:id", produtoController.buscar);
-    router.get("/", produtoController.criar);
+    router.post("/", produtoController.criar);
     return router;
 }
