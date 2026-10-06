@@ -1,9 +1,12 @@
 
-import {carregarAmbiente} from './config/ambiente.js';
-const config = carregarAmbiente('.env');
-const {app} = await import('./app.js');
-const porta = config.port || 3000;
+import { carregarAmbiente } from "./config/ambiente.js";
 
-app.listen(porta, ()=>{
-    console.log(`Servidor rodando em: http://localhost:${porta}`);
-})
+const config = carregarAmbiente(".env");
+
+const { app } = await import("./app.js");
+
+const porta = config.porta || 3000;
+
+app.listen(porta, () => {
+    console.log(`Servidor rodando em http://localhost:${porta}`);
+});                      
