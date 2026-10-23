@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 
 import { produtoRouter, configurarSegurancaProdutos } from './routes/ProdutoRoutes.js';
 import { authRouter } from './routes/AuthRoutes.js';
-import { autenticar, autorizarAdmin } from './middlewares/AuthMiddleware.js';
+import { autenticar, autorizarAdmin } from './middleware/AuthMiddleware.js';
 
 export const app = express();
 
