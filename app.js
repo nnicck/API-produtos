@@ -1,36 +1,35 @@
-import express from "express";
-import { criarPool } from "./config/database.js";
-import { criarProdutoModel } from "./models/ProdutoModel.js";
-import { criarProdutoService } from "./services/ProdutoService.js";
-import { criarProdutoController } from "./controllers/ProdutoController.js";
-import { criarProdutoRoutes } from "./routes/produtoRoutes.js";
-
-//import { produtoRoutes } from "./routes/produtoRoutes.js";
+import express from 'express';
+import { resolve } from 'node:path';
+import { produtoRouter } from './routes/ProdutoRoutes.js';
 
 export const app = express();
 
-// middleware: "ensina" o express a ler json no corpo da requisição
 app.use(express.json());
 
-const pool = criarPool();
-const produtoModel = criarProdutoModel({ pool });
-const produtoService = criarProdutoService({ produtoModel });
-const produtoController = criarProdutoController({ produtoService });
-const produtoRoutes = criarProdutoRoutes({ produtoController });
+// Permite acessar as fotos pelo navegador: http://localhost:3000/uploads/produtos/...
+app.use('/uploads', express.static(resolve('uploads')));
 
-
-
-app.get("/api/check", (req, res) => {
-    res.status(200).json({ status: "ok", mensagem: "Servidor funcionando via HTTP" });
+// Log de requisições no console
+app.use((req, res, next) => {
+  const inicio = performance.now();
+  res.once('finish', () => {
+    const duracao = Math.round(performance.now() - inicio);
+    console.log(`${req.method} ${req.originalUrl} - ${res.statusCode} [${duracao}ms]`);
+  });
+  next();
 });
 
-app.use("/api/produto", produtoRoutes);
+// Rotas da API
+app.get('/api/check', (_req, res) => res.status(200).json({ status: 'ok' }));
+app.use('/api/produto', produtoRouter);
 
+// Fallback 404 (Rota não encontrada)
 app.use((req, res) => {
-    res.status(404).json({ erro: `A rota ${req.method} ${req.originalUrl} não existe.`});
+  res.status(404).json({ sucesso: false, erro: `A rota ${req.method} ${req.originalUrl} não existe.` });
 });
 
+// Tratador Global de Erros
 app.use((erro, req, res, _next) => {
-    console.erro(`Erro de sistema: ${erro.message}`);
-    res.status(500).json({ erro: "Falha interna do servidor"});
+  console.error('Erro de Servidor:', erro.message);
+  res.status(erro.status || 500).json({ sucesso: false, erro: erro.message || 'Falha interna do servidor.' });
 });

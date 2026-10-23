@@ -1,9 +1,24 @@
-import express from "express";
+import express from 'express';
+import * as ProdutoController from '../controllers/ProdutoController.js';
+import { uploadImagem } from '../middleware/UploadMiddleware.js';
 
-export function criarProdutoRoutes({ produtoController }){
-    const router = express.Router();
-    router.get("/", produtoController.listar);
-    router.get("/:id", produtoController.buscar);
-    router.post("/", produtoController.criar);
-    return router;
-}
+// Middlewares de autenticação (serão ativados na Sessão 2)
+// Inicialmente passam direto para não travar a Sessão 1
+let autenticar = (_req, _res, next) => next();
+let autorizarAdmin = (_req, _res, next) => next();
+
+export const produtoRouter = express.Router();
+
+produtoRouter.get('/', ProdutoController.listar);
+produtoRouter.get('/:id', ProdutoController.buscarPorId);
+produtoRouter.post('/', (req, res, next) => autenticar(req, res, next), ProdutoController.criar);
+produtoRouter.put('/:id', (req, res, next) => autenticar(req, res, next), ProdutoController.atualizar);
+produtoRouter.patch('/:id/imagem', (req, res, next) => autenticar(req, res, next), uploadImagem, ProdutoController.enviarImagem);
+produtoRouter.delete('/:id', (req, res, next) => autenticar(req, res, next), (req, res, next) => autorizarAdmin(req, res, next), ProdutoController.excluir);
+
+
+// produtoRouter.post('/', ProdutoController.criar);
+// produtoRouter.put('/:id', ProdutoController.atualizar);
+// produtoRouter.patch('/:id/imagem', uploadImagem, ProdutoController.enviarImagem);
+// produtoRouter.delete('/:id', ProdutoController.excluir);
+
